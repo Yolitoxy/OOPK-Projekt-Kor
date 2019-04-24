@@ -5,6 +5,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.lang.*;
+import java.net.*;
 
 public class ChatFrame extends JFrame implements ActionListener {
 	private static ChatPanel myChatPanel;
@@ -25,8 +27,8 @@ public class ChatFrame extends JFrame implements ActionListener {
         add(myPopUpPanel);
         
         myChatPanel= new ChatPanel((ActionListener)this);
-        myChatPanel.setVisible(true);
-        
+        myChatPanel.setVisible(false);
+       // remove(myChatPanel);
         pack();
 
 	}
@@ -49,10 +51,12 @@ public class ChatFrame extends JFrame implements ActionListener {
 			myUser.setUsername(userName);
 			System.out.println("connect to: "+userName);
 			myUser.connectTo(IP, portCode);
+			System.out.println(IP+portCode);
 			
 			myChatPanel.setInformationBar(IP, portCode);
 			remove(myPopUpPanel);
 			add(myChatPanel);
+			myChatPanel.setVisible(true);
 		}
 		
 		//	If Server button was pressed, read the user
@@ -60,14 +64,21 @@ public class ChatFrame extends JFrame implements ActionListener {
 		else if(e.getSource() == myPopUpPanel.getServerButton()) {
 			String userName = myPopUpPanel.getUserName();
 			int portCode = myPopUpPanel.getPortcode();
+			String IP = null;
+			try {
+				IP = InetAddress.getLocalHost().getHostAddress().toString();
+			} catch (UnknownHostException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} 
 			
 			myUser.setUsername(userName);
 			System.out.println("host name "+userName+" at port "+portCode);
 			myUser.hostAt(portCode);
-			
-			myChatPanel.setInformationBar("Host. ", portCode);
+			myChatPanel.setInformationBar(IP, portCode);
 			remove(myPopUpPanel);
 			add(myChatPanel);
+			myChatPanel.setVisible(true);
 			pack();
 		}
 		

@@ -44,13 +44,12 @@ public class ChatPanel extends JPanel{
         displayField= new JTextPane();
         chatTextField= new JTextField("Write your message here");
         informationBar= new JLabel("IP-adress:");
-        JLabel chatLabel= new JLabel("Friendship is magic");
         
         chatTextField.setBounds(20,450,380,150);
         colorButton.setBounds(20,410,150,30);
         enterButton.setBounds(420,450,100,100);
         closeButton.setBounds(420,50,100,100);
-        informationBar.setBounds(420,200,100,100);
+        informationBar.setBounds(420,200,300,300);
         
         JScrollPane displayFieldContainer = new JScrollPane(displayField);
         displayField.setContentType("text/html");
@@ -90,8 +89,8 @@ public class ChatPanel extends JPanel{
 
     
     public void setInformationBar(String IPAdress,int portCode) {
-    	informationBar = new JLabel("IP-adress:"+IPAdress+"\n"+"Port code"+portCode);
-        informationBar.setBounds(420,200,300,300);
+    	informationBar.setText("IP-adress:"+IPAdress+"\n"+"  Port code: "+portCode);
+        informationBar.setBounds(420,200,600,300);
         this.repaint();    
     }
 
