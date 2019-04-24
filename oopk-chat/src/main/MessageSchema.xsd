@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="unqualified">
+<element name='message'>
+	<complexType>
+		<choice>
+			<element name='disconnect'/>
+		 	<element name='text'>
+		 		<complexType mixed='true'>
+		 			<all>
+		 				<element name='fetstil'/>
+		 				<element name='kursiv'/>
+					</all>
+				<attribute name='color' type='string'/>
+				</complexType>
+			</element>
+		</choice>
+		<attribute name='sender' type='string'/>
+	</complexType>
+</element>
+</schema>
