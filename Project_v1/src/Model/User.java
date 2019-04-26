@@ -75,8 +75,7 @@ implements PropertyChangeListener,
 		switch(ID) {
 			case "message":
 			// 	a bonafide message that is supposed to be displayed
-				System.out.println(view);
-				System.out.println(inMessage);
+				System.out.println("User: "+inMessage);
 				view.displayMessage(inMessage);
 				break;
 			case "disconnect":

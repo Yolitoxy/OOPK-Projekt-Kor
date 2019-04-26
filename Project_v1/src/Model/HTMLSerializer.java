@@ -50,7 +50,8 @@ public class HTMLSerializer {
 	
 	String serializeTextContent(Node txt) {
 		if (txt.getNodeType()==Node.TEXT_NODE) {
-			return txt.getTextContent();
+			System.out.println("Serializer: "+txt.getTextContent());
+			return Message.escapeXml(txt.getTextContent());
 		}
 		else if (txt.getNodeName() == "fetstil") {
 			String formatBold = "<b>";
