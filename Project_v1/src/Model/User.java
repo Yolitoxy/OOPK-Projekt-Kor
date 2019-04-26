@@ -13,11 +13,11 @@ public class User
 implements PropertyChangeListener,
 		   ActionListener {
 	private String username;
-	private String color;
+	private Color color;
 	private Connection connection;
 	private ChatPanel view;
 	
-	public User(String inUsername, String inColor, ChatPanel view) {
+	public User(String inUsername, Color inColor, ChatPanel view) {
 		username = inUsername;
 		color = inColor;
 		this.view = view;
@@ -45,7 +45,7 @@ implements PropertyChangeListener,
 		connection.close();
 	}
 	
-	public void setColor(String newColor) {
+	public void setColor(Color newColor) {
 		color = newColor;
 		return;
 	}
@@ -59,7 +59,7 @@ implements PropertyChangeListener,
 		return username;
 	}
 
-	public String getColor() {
+	public Color getColor() {
 		return color;
 	}
 	
@@ -109,7 +109,7 @@ implements PropertyChangeListener,
 				"Choose your textcolor",
 				Color.black
 			);
-			setColor(newColor.toString());
+			setColor(newColor);
 		}
 		
 	}

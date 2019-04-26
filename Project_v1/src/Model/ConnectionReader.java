@@ -1,4 +1,5 @@
 package Model;
+import java.awt.Color;
 import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.net.Socket;
@@ -69,14 +70,14 @@ public class ConnectionReader implements Runnable {
 					System.out.println("ConnectionReader1: "+ readText);
 					active = false;
 					String newText = Message.readXML(Message.createXML(
-									"TERMINAL", "BLACK", "Connection ended.")).get();
+									"TERMINAL", Color.BLACK, "Connection ended.")).get();
 					support.firePropertyChange("message", oldText, newText);
 					oldText = newText;
 				} else {
 					System.out.println("ConnectionReader2: "+readText);
 					String newText = Message.readXML(readText).orElseGet(() -> 
 							Message.createXML(
-									"TERMINAL", "BLACK", "Uninterpreted message."));
+									"TERMINAL", Color.BLACK, "Uninterpreted message."));
 					support.firePropertyChange("message", oldText, newText);
 					oldText = newText;
 				}
