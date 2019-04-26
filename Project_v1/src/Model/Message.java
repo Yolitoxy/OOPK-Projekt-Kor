@@ -4,6 +4,7 @@ import java.util.Optional;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.io.StringReader;
 
@@ -22,6 +23,13 @@ public class Message {
 				+ escapeXml(message)+"</text></message>";
 		return myXML; 
     }
+    
+    public static String hexString(Color c) {
+		var out = Integer.toHexString(c.getRed())
+				+ Integer.toHexString(c.getGreen())
+				+ Integer.toHexString(c.getBlue());
+		return out;
+	}
     
     public static String createXML(User user, String message) {
     	return createXML(user.getUsername(),user.getColor(),message);

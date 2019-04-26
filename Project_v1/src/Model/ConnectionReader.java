@@ -1,32 +1,73 @@
 package Model;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.*;
+import java.net.Socket;
 
 public class ConnectionReader implements Runnable {
 	private String readText;
 	private String oldText;
 	BufferedReader in;
+	PrintWriter out;
+	Socket s;
 	PropertyChangeSupport support;
-	PropertyChangeListener controller;
+	boolean active;
 	
-	ConnectionReader(BufferedReader i, PropertyChangeListener inController) {
-		in = new BufferedReader(i);
+	ConnectionReader() {
 		support = new PropertyChangeSupport(this);
-		controller = inController;
-		support.addPropertyChangeListener(controller);
+		active = false;
+		System.out.println("ConnectionReader spawned with support "+support);
+	}
+	
+	ConnectionReader(Socket s) throws IOException {
+		this();
+		System.out.println("ConnectionReader spawned with socket "+s);
+		bind(s);
 	}
 
+	void bind(Socket s) throws IOException {
+		this.s	= s;
+		out		= new PrintWriter(s.getOutputStream(), true);
+		in		= new BufferedReader(new InputStreamReader(
+				  s.getInputStream()));
+		active 	= true;
+	}
+	
+	PropertyChangeSupport getSupport() {
+		return support;
+	}
+	
+	void writeOut(String s) {
+		System.out.println("Sending message: "+s);
+		out.println(s);
+	}
+	
+	void close() {
+		out.close();
+		
+		try {
+			in.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			s.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	@Override
 	public void run() {
-		boolean done = false;
-		while(!done) {
+		while(active) {
 			System.out.println("ConnectionReader listening.");
+			System.out.println("Currently hooked: "+support.getPropertyChangeListeners());
 			try {
 				readText = in.readLine();
 				if(readText==null) {
 					System.out.println("ConnectionReader1: "+ readText);
-					done = true;
+					active = false;
 					String newText = Message.readXML(Message.createXML(
 									"TERMINAL", "BLACK", "Connection ended.")).get();
 					support.firePropertyChange("message", oldText, newText);
@@ -40,8 +81,7 @@ public class ConnectionReader implements Runnable {
 					oldText = newText;
 				}
 			} catch(IOException e) {
-				done = true;
-				support.removePropertyChangeListener(controller);
+				active = false;
 				e.printStackTrace();
 			}
 			

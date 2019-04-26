@@ -14,7 +14,7 @@ public class PopUpPanel extends JPanel{
     private JLabel enterIP;
     private JLabel enterUserName;
 	
-    public PopUpPanel(ActionListener myChatFrame) {
+    public PopUpPanel() {
     	
     	setLayout(null);
     	setSize(700,700);
@@ -41,8 +41,6 @@ public class PopUpPanel extends JPanel{
     	clientButton.setBounds(240,190,90,30);  
     	serverButton.setBounds(100, 190, 90,30);
     
-    	serverButton.addActionListener(myChatFrame);
-       	clientButton.addActionListener(myChatFrame);
            		
     	  
      	add(serverButton);
@@ -58,11 +56,11 @@ public class PopUpPanel extends JPanel{
     	
     }
     
-    public Object getClientButton() {
+    public JButton getClientButton() {
     	return clientButton;
     }
     
-    public Object getServerButton() {
+    public JButton getServerButton() {
     	return serverButton;
     }
     

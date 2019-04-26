@@ -31,7 +31,7 @@ public class ChatPanel extends JPanel{
     
   
     
-    public ChatPanel(ActionListener myChatFrame){
+    public ChatPanel(){
     	
     	setLayout(null);
     	setSize(X_SIZE,Y_SIZE);
@@ -49,16 +49,12 @@ public class ChatPanel extends JPanel{
         colorButton.setBounds(20,410,150,30);
         enterButton.setBounds(420,450,100,100);
         closeButton.setBounds(420,50,100,100);
-        informationBar.setBounds(420,200,300,300);
+        informationBar.setBounds(470,100,100,100);
         
         JScrollPane displayFieldContainer = new JScrollPane(displayField);
         displayField.setContentType("text/html");
         displayField.setEditable(false);
         displayField.setSize(400,400);
-        
-        enterButton.addActionListener(myChatFrame);
-        colorButton.addActionListener(myChatFrame);
-        closeButton.addActionListener(myChatFrame);
         
         
         add(enterButton);
@@ -70,15 +66,15 @@ public class ChatPanel extends JPanel{
         add(displayField);
     }
     
-    public Object getEnterButton() {
+    public JButton getEnterButton() {
     	return enterButton;
     }
     
-    public Object getColorButton() {
+    public JButton getColorButton() {
     	return colorButton;
     }
     
-    public Object getCloseButton() {
+    public JButton getCloseButton() {
     	return closeButton;
     }
     

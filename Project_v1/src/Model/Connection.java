@@ -2,86 +2,134 @@ package Model;
 import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Connection {
-	Socket MainSocket = null;
-	ServerSocket ServerListenSocket = null;
-	private PrintWriter out;
-	private BufferedReader in;
-	private PropertyChangeListener controller;
+	private ServerSocket listen;
+	private List<ConnectionReader> readers;
+	private List<PropertyChangeListener> subscribers;
+	public boolean active;
 	
-	public void sendText(String s) {
-		System.out.println("Sending message: "+s);
-		out.println(s);
-		return;
+	
+	public Connection() {
+		readers 	= new ArrayList<>();
+		subscribers = new ArrayList<>();
+		active		= false;
+		listen		= null;
 	}
 	
-	// Client instance
-	public Connection(String IPadress, int port, PropertyChangeListener inController) {
-		controller = inController;
+	
+	void connect(String IPAdress, int port) {
 		try {
-			setup(new Socket(IPadress,port));
+			connect(new Socket(IPAdress, port));
 		} catch(IOException e) {
-			//	TODO error: not found
 			e.printStackTrace();
 		}
 	}
 	
-	// Host instance
-	public Connection(int port, PropertyChangeListener inController) {
-		controller = inController;
+	void host(int port) {
 		try {
-			ServerListenSocket = new ServerSocket(port);
+			listen = new ServerSocket(port);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Thread t = new Thread(new ConnectionHostListener(ServerListenSocket));
+		Thread t = new Thread(new ListenOnce(listen));
 		t.start();
 	}
 	
-	private void setup(Socket s) throws IOException {
-		//	connect this component to the given socket
-		MainSocket = s;
-		out = new PrintWriter(MainSocket.getOutputStream(), true);
-		in = new BufferedReader(
-	    		new InputStreamReader(MainSocket.getInputStream()));
+	void hostRoom(int port) {
+		try {
+			listen = new ServerSocket(port);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Thread t = new Thread(new ListenAlways(listen));
+		t.start();
+	}
+	
+	private void connect(Socket s) throws IOException {
 		
 		//	add an observable that listens to the incoming stream
 		//	and notifies controller when it receive incoming text
-		Thread t = new Thread(new ConnectionReader(in,controller));
+		ConnectionReader reader = new ConnectionReader(s);
+		readers.add(reader);
+		
+		for(PropertyChangeListener sub: subscribers) {
+			System.out.println("Adding subscriber "+sub+" to "+reader.getSupport());
+			reader.getSupport()
+				  .addPropertyChangeListener(sub);
+		}
+		
+		Thread t = new Thread(reader);
 		t.start();
 	}
 	
-	void close() {
-		try {
-			System.out.println("---Closing connection.");
-			in.close();
-			out.close();
-			MainSocket.close();
-		} catch (IOException|NullPointerException e) {
-			//	if the sockets are not found, they cannot be closed
-			//	this is fine as this means that the sockets aren't initialized
-			e.printStackTrace();
+
+	public void sendText(String s) {
+		for(ConnectionReader r : readers) {
+			r.writeOut(s);
 		}
 	}
 	
-	private class ConnectionHostListener implements Runnable {
+	void subscribe(PropertyChangeListener sub) {
+		subscribers.add(sub);
+	}
+	
+	List<ConnectionReader> getReaders() {
+		return readers;
+	}
+	
+	void close() {
+		System.out.println("---Closing connections.");
+		for(ConnectionReader r: readers) {
+			r.close();
+		}
+		
+		try {
+			listen.close();
+		} catch(NullPointerException e) {
+			// listen not initialized
+		} catch (IOException e) {
+			// listen currently listening, swallow
+		}
+	}
+	
+	private class ListenOnce implements Runnable {
 		private ServerSocket s;
 		
-		ConnectionHostListener(ServerSocket s) {
+		ListenOnce(ServerSocket s) {
 			this.s=s;
 		}
 		
 		@Override
 		public void run() {
 			try {
-				setup(s.accept());
+				connect(s.accept());
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				// swallow
 				e.printStackTrace();
 			}
 		}
-		
 	}
 	
+	private class ListenAlways implements Runnable {
+		private ServerSocket s;
+		
+		ListenAlways(ServerSocket s) {
+			this.s = s;
+		}
+		
+		@Override
+		public void run() {
+			while(active) {
+				try {
+					connect(s.accept());
+				} catch (IOException e) {
+					// swallow
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 }
