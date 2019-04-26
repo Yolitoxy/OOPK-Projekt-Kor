@@ -7,6 +7,8 @@ import java.awt.event.WindowListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 
 import javax.swing.JColorChooser;
 
@@ -38,7 +40,7 @@ public class Controller
 				.getCloseButton()
 				.addActionListener((ActionListener)this);
 			
-			myUser = new Model.User("DefaultUser","BLACK",myFrame.getChatPanel());
+			myUser = new Model.User("DefaultUser",Color.BLACK,myFrame.getChatPanel());
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -82,11 +84,20 @@ public class Controller
 			String userName = myFrame.getPopUpPanel().getUserName();
 			int portCode = myFrame.getPopUpPanel().getPortcode();
 			
+			try {
+				String ID = Inet4Address.getLocalHost().getHostAddress().toString();
+				myFrame.getChatPanel().setInformationBar(ID, portCode);
+			} catch (UnknownHostException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				myFrame.getChatPanel().setInformationBar("Host", portCode);
+			}
+			
 			myUser.setUsername(userName);
 			System.out.println("host name "+userName+" at port "+portCode);
 			myUser.hostOnce(portCode);
 			
-			myFrame.getChatPanel().setInformationBar("Host. ", portCode);
+			
 			myFrame.remove(myFrame.getPopUpPanel());
 			myFrame.add(myFrame.getChatPanel());
 			myFrame.pack();
@@ -96,7 +107,7 @@ public class Controller
 		else if(e.getSource()==myFrame.getChatPanel().getCloseButton()) {
 			String logOutMessage = Model.Message.createXML(
 				"System",
-				"RED",
+				Color.RED,
 				myUser.getUsername()+" has logged out."
 			);
         	myUser.sendMessage(logOutMessage); 
