@@ -1,20 +1,14 @@
 package View;
 
 import java.awt.*;
-import javax.swing.JEditorPane;
-import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTMLDocument;
 
-import Model.Message;
-
-import java.awt.event.*;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Optional;
-
 import javax.swing.*;
+import java.util.List;
 
 
 	
@@ -28,7 +22,7 @@ public class ChatPanel extends JPanel{
     private JLabel informationBar;
     private JTextPane displayField;
     private ArrayList<String> messageList= new ArrayList<String>();
-    
+    private List<JButton> buttons;
   
     
     public ChatPanel(){
@@ -40,10 +34,19 @@ public class ChatPanel extends JPanel{
         enterButton = new JButton("Enter");
         closeButton= new JButton("Log out");
         colorButton=new JButton("Choose text-color");
+        
         colorButton.setBackground(Color.CYAN);
         displayField= new JTextPane();
         chatTextField= new JTextField("Write your message here");
         informationBar= new JLabel("IP-adress:");
+
+        buttons = new ArrayList<>();
+        buttons.add(enterButton);
+        buttons.add(closeButton);
+        buttons.add(colorButton);
+        
+        
+        
         
         chatTextField.setBounds(20,450,380,150);
         colorButton.setBounds(20,410,150,30);
@@ -103,6 +106,10 @@ public class ChatPanel extends JPanel{
 			// this should never be reachable as we always have a body
 		}
     }
+
+	public List<JButton> buttons() {
+		return buttons;
+	}
     
 }
   

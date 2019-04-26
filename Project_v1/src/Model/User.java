@@ -5,8 +5,10 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.JButton;
 import javax.swing.JColorChooser;
 
+import View.ChatFrame;
 import View.ChatPanel;
 
 public class User
@@ -17,15 +19,16 @@ implements PropertyChangeListener,
 	private Connection connection;
 	private ChatPanel view;
 	
-	public User(String inUsername, Color inColor, ChatPanel view) {
+	public User(String inUsername, Color inColor, ChatFrame v) {
 		username = inUsername;
 		color = inColor;
-		this.view = view;
+		view = v.spawnChatPanel();
 		connection = new Connection();
 		connection.subscribe(this);
 		
-        view.getEnterButton().addActionListener((ActionListener)this);
-        view.getColorButton().addActionListener((ActionListener)this);
+        for(JButton b: view.buttons()) {
+        	b.addActionListener(this);
+        }
 	}
 	
 	public void sendMessage(String m) {

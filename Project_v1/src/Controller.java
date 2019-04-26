@@ -27,20 +27,9 @@ public class Controller
 		try {
 			myFrame = new View.ChatFrame();
 			myFrame.addWindowListener(this);
+			myFrame.subscribe((ActionListener)this);
 			
-			myFrame.getPopUpPanel()
-				.getClientButton()
-				.addActionListener((ActionListener)this);
-			
-			myFrame.getPopUpPanel()
-				.getServerButton()
-				.addActionListener((ActionListener)this);
-			
-			myFrame.getChatPanel()
-				.getCloseButton()
-				.addActionListener((ActionListener)this);
-			
-			myUser = new Model.User("DefaultUser",Color.BLACK,myFrame.getChatPanel());
+			myUser = new Model.User("DefaultUser", Color.BLACK, myFrame);
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
