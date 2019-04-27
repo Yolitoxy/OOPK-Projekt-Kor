@@ -2,6 +2,8 @@ package View;
 
 import javax.swing.*;
 import Model.User;
+
+import java.awt.Dimension;
 import java.awt.event.*;
 
 public class PopUpPanel extends JPanel{
@@ -16,44 +18,50 @@ public class PopUpPanel extends JPanel{
 	
     public PopUpPanel() {
     	
-    	setLayout(null);
-    	setSize(700,700);
-    	
-    	serverButton=new JButton("Server");
-    	clientButton= new JButton("Client");
-    	enterPortcode= new JLabel("Write the port code");
-    	portcodeBar=new JTextField();
-    	enterIP=new JLabel("Write the IP-adress");
-    	userIPBarInput= new JTextField();
-    	enterUserName=new JLabel("What is your username?");
-    	userNameInput= new JTextField();
-    	
-    	
-    	enterUserName.setBounds(130,30,200,30);
-    	userNameInput.setBounds(130,60,130,30);
-    	enterPortcode.setBounds(60,90,120,30);
-    	portcodeBar.setBounds(60,120,130,30);
-    	
-    	enterIP.setBounds(200, 90,120,30);
-    	userIPBarInput.setBounds(200,120,130,30);
-    	
-    	
-    	clientButton.setBounds(240,190,90,30);  
-    	serverButton.setBounds(100, 190, 90,30);
-    
-           		
-    	  
-     	add(serverButton);
-        add(clientButton);
-        add(portcodeBar);
-        add(userIPBarInput);
-        add(userNameInput);
-        add(enterUserName);
-        add(enterPortcode);
-        add(enterIP);
+    	BoxLayout panelLayout = new BoxLayout(this, BoxLayout.PAGE_AXIS);
+        setLayout(panelLayout);
+        setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
         
-        	
+    	serverButton=new JButton("Host");
+    	clientButton= new JButton("Connect");
+    	JPanel buttons = new JPanel();
+    	BoxLayout buttonLayout = new BoxLayout(buttons, BoxLayout.LINE_AXIS);
+    	buttons.setLayout(buttonLayout);
+    	buttons.add(clientButton);
+    	buttons.add(Box.createHorizontalStrut(5));
+    	buttons.add(serverButton);
+    	buttons.setAlignmentX(LEFT_ALIGNMENT);
+    	buttons.setMaximumSize(buttons.getPreferredSize());
     	
+    	enterPortcode= new JLabel("Port code");
+    	portcodeBar=new JTextField(15);
+    	portcodeBar.setMaximumSize(portcodeBar.getPreferredSize());
+    	enterPortcode.setAlignmentX(LEFT_ALIGNMENT);
+    	portcodeBar.setAlignmentX(LEFT_ALIGNMENT);
+    	
+    	enterIP=new JLabel("IP adress");
+    	userIPBarInput= new JTextField(15);
+    	userIPBarInput.setMaximumSize(userIPBarInput.getPreferredSize());
+    	enterIP.setAlignmentX(LEFT_ALIGNMENT);
+    	userIPBarInput.setAlignmentX(LEFT_ALIGNMENT);
+    	
+    	enterUserName=new JLabel("Nickname");
+    	userNameInput= new JTextField(15);
+    	userNameInput.setMaximumSize(userNameInput.getPreferredSize());
+    	enterUserName.setAlignmentX(LEFT_ALIGNMENT);
+    	userNameInput.setAlignmentX(LEFT_ALIGNMENT);
+        
+        add(enterUserName);
+        add(userNameInput);
+        add(enterPortcode);
+        add(portcodeBar);
+        add(enterIP);
+        add(userIPBarInput);
+        
+        add(Box.createVerticalStrut(25));
+        add(buttons);
+
+        add(Box.createVerticalGlue());
     }
     
     public JButton getClientButton() {

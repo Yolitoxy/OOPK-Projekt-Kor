@@ -50,6 +50,10 @@ public class Controller
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		
+		
+
+		System.out.println("Controller: poked");
+		
 		//	If Client button was pressed, read the user
 		//	entered text from the relevant lines and
 		//	try to connect.
@@ -63,8 +67,10 @@ public class Controller
 			myUser.connectTo(IP, portCode);
 			
 			myFrame.getChatPanel().setInformationBar(IP, portCode);
-			myFrame.remove(myFrame.getPopUpPanel());
-			myFrame.add(myFrame.getChatPanel());
+			//myFrame.remove(myFrame.getPopUpPanel());
+			//myFrame.add(myFrame.getChatPanel());
+			
+			myFrame.getChatPanel().getCloseButton().addActionListener((ActionListener)this);
 		}
 		
 		//	If Server button was pressed, read the user
@@ -87,25 +93,18 @@ public class Controller
 			myUser.hostOnce(portCode);
 			
 			
-			myFrame.remove(myFrame.getPopUpPanel());
-			myFrame.add(myFrame.getChatPanel());
+			//myFrame.remove(myFrame.getPopUpPanel());
+			//myFrame.add(myFrame.getChatPanel());
 			myFrame.pack();
+			
+			myFrame.getChatPanel().getCloseButton().addActionListener((ActionListener)this);
+			
 		}
 		
 		//	Chat window: Close down the current chat session.
 		else if(e.getSource()==myFrame.getChatPanel().getCloseButton()) {
-			String logOutMessage = Model.Message.createXML(
-				"System",
-				Color.RED,
-				myUser.getUsername()+" has logged out."
-			);
-        	myUser.sendMessage(logOutMessage); 
-        	myFrame.getChatPanel().displayMessage(
-        			Model.Message.readXML(logOutMessage).get());
-        	
-        	myUser.closeConnection(); 
-        	myFrame.remove(myFrame.getChatPanel());
-        	myFrame.add(myFrame.getPopUpPanel());
+        	//myFrame.remove(myFrame.getChatPanel());
+        	//myFrame.add(myFrame.getPopUpPanel());
         	myFrame.pack();
 		}
 		

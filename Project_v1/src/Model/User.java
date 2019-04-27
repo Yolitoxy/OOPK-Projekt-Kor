@@ -10,6 +10,7 @@ import javax.swing.JColorChooser;
 
 import View.ChatFrame;
 import View.ChatPanel;
+import View.SessionView;
 
 public class User
 implements PropertyChangeListener,
@@ -17,7 +18,13 @@ implements PropertyChangeListener,
 	private String username;
 	private Color color;
 	private Connection connection;
-	private ChatPanel view;
+	private SessionView view;
+	
+	public enum Button {
+		ENTER,
+		COLOR,
+		LOGOUT;
+	}
 	
 	public User(String inUsername, Color inColor, ChatFrame v) {
 		username = inUsername;
@@ -26,8 +33,8 @@ implements PropertyChangeListener,
 		connection = new Connection();
 		connection.subscribe(this);
 		
-        for(JButton b: view.buttons()) {
-        	b.addActionListener(this);
+        for(Button b: Button.values()) {
+        	view.getButton(b).addActionListener(this);
         }
 	}
 	
@@ -95,7 +102,7 @@ implements PropertyChangeListener,
 	public void actionPerformed(ActionEvent e) {
 		
 		//	Chat window: The enter button causes a message to be sent.
-		if(e.getSource()==view.getEnterButton()) {
+		if(e.getSource() == view.getButton(Button.ENTER)) {
 			sendMessage(view.getNewSentMessage());
 			view.displayMessage(
 					Message.readXML(
@@ -105,13 +112,26 @@ implements PropertyChangeListener,
 		
 		//	Chat window: Change color if color button is pressed.
 		}
-		else if(e.getSource()==view.getColorButton()) {
+		else if(e.getSource() == view.getButton(Button.COLOR)) {
 			Color newColor=JColorChooser.showDialog(
 				null,
 				"Choose your textcolor",
 				Color.black
 			);
 			setColor(newColor);
+		}
+		
+		else if(e.getSource()==view.getButton(Button.LOGOUT)) {
+			String logOutMessage = Message.createXML(
+				"System",
+				Color.RED,
+				username +" has logged out."
+			);
+        	sendMessage(logOutMessage); 
+        	view.displayMessage(
+        			Model.Message.readXML(logOutMessage).get());
+        	
+        	closeConnection();
 		}
 		
 	}

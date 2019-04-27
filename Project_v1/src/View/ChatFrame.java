@@ -1,5 +1,7 @@
 package View;
 
+import javax.swing.BoxLayout;
+import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import java.awt.*;
@@ -18,15 +20,20 @@ public class ChatFrame extends JFrame {
 			throws IOException {
 		subscribers = new ArrayList<>();
 		
-        setPreferredSize(new Dimension(900, 900));
+        //setPreferredSize(new Dimension(900, 350));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
         
+        setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+
+        myChatPanel = new ChatPanel();
+        add(myChatPanel);
+        
         p = new PopUpPanel();
-        p.setVisible(true);
         add(p);
         
-        pack();
+        
+        layoutInit();
 
 	}
 	
@@ -45,8 +52,12 @@ public class ChatFrame extends JFrame {
 	}
 	
 	public ChatPanel spawnChatPanel() {
+		remove(myChatPanel);
 		myChatPanel = new ChatPanel();
 		myChatPanel.setVisible(true);
+		add(myChatPanel);
+		
+		pack();
 		
 		for (ActionListener sub: subscribers) {
 			for (JButton b: myChatPanel.buttons()) {
@@ -60,5 +71,12 @@ public class ChatFrame extends JFrame {
 		return myChatPanel;
 	};
 	
+	private void layoutInit() {
+		BoxLayout l = new BoxLayout(getContentPane(), BoxLayout.LINE_AXIS); 
+		setLayout(l);
+		
+		
+        pack();
+	}
 };
 

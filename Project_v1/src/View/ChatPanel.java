@@ -1,9 +1,11 @@
 package View;
 
 import java.awt.*;
-import javax.swing.JScrollPane;
+
 import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTMLDocument;
+
+import Model.User.Button;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,7 +14,7 @@ import java.util.List;
 
 
 	
-public class ChatPanel extends JPanel{
+public class ChatPanel extends JPanel implements SessionView {
 	private static final int X_SIZE=700;
     private static final int Y_SIZE=700;
     private JButton colorButton;
@@ -27,46 +29,67 @@ public class ChatPanel extends JPanel{
     
     public ChatPanel(){
     	
-    	setLayout(null);
-    	setSize(X_SIZE,Y_SIZE);
+    	//setLayout(null);
+    	//setSize(X_SIZE,Y_SIZE);
 
+        BoxLayout panelLayout = new BoxLayout(this, BoxLayout.PAGE_AXIS);
+        setLayout(panelLayout);
         
-        enterButton = new JButton("Enter");
-        closeButton= new JButton("Log out");
-        colorButton=new JButton("Choose text-color");
+        enterButton = defaultCtrlButton();
+        colorButton = defaultCtrlButton();
+        closeButton = defaultCtrlButton();
         
-        colorButton.setBackground(Color.CYAN);
-        displayField= new JTextPane();
-        chatTextField= new JTextField("Write your message here");
-        informationBar= new JLabel("IP-adress:");
-
+        enterButton.setText(">");
+        colorButton.setText("o");
+        closeButton.setText("x");
+        
+        enterButton.setBackground(Color.GREEN);
+        colorButton.setBackground(Color.LIGHT_GRAY);
+        closeButton.setBackground(Color.RED);
+        chatTextField= new JTextField(20);
+        chatTextField.setMaximumSize(new Dimension(
+        		Integer.MAX_VALUE,
+        		chatTextField.getPreferredSize().height));
+        chatTextField.setText("Write your message here");
+        
+        JPanel controls = new JPanel();
+        BoxLayout controlsLayout = new BoxLayout(controls, BoxLayout.LINE_AXIS);
+        controls.setLayout(controlsLayout);
+        controls.add(chatTextField);
+        controls.add(Box.createRigidArea(new Dimension(5,0)));
+        controls.add(enterButton);
+        controls.add(Box.createRigidArea(new Dimension(5,0)));
+        controls.add(colorButton);
+        controls.add(Box.createRigidArea(new Dimension(5,0)));
+        controls.add(closeButton);
+        
+        controls.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+        
         buttons = new ArrayList<>();
         buttons.add(enterButton);
         buttons.add(closeButton);
         buttons.add(colorButton);
         
+
+        displayField= new JTextPane();
+        informationBar= new JLabel("IP-adress:");
+        informationBar.setBorder(BorderFactory.createEmptyBorder(5,5,5,15));
         
         
-        
-        chatTextField.setBounds(20,450,380,150);
-        colorButton.setBounds(20,410,150,30);
-        enterButton.setBounds(420,450,100,100);
-        closeButton.setBounds(420,50,100,100);
-        informationBar.setBounds(470,100,100,100);
         
         JScrollPane displayFieldContainer = new JScrollPane(displayField);
         displayField.setContentType("text/html");
         displayField.setEditable(false);
-        displayField.setSize(400,400);
+        displayFieldContainer.setPreferredSize(new Dimension(300,180));
         
-        
-        add(enterButton);
-        add(chatTextField);
+
+        add(displayFieldContainer);
+        add(controls);
         add(informationBar);
-        add(chatTextField);
-        add(colorButton);
-        add(closeButton);
-        add(displayField);
+        
+        displayFieldContainer.setAlignmentX(Component.LEFT_ALIGNMENT);
+        controls.setAlignmentX(Component.LEFT_ALIGNMENT);
+        informationBar.setAlignmentX(Component.LEFT_ALIGNMENT);
     }
     
     public JButton getEnterButton() {
@@ -93,7 +116,17 @@ public class ChatPanel extends JPanel{
         this.repaint();    
     }
 
-        	
+    private JButton defaultCtrlButton() {
+    	JButton b = new JButton();
+    	Dimension bDim = new Dimension(20,20);
+        b.setPreferredSize(bDim);
+        b.setForeground(Color.WHITE);
+        b.setMargin(new Insets(0,0,0,0));
+        b.setHorizontalTextPosition(SwingConstants.CENTER);
+        b.setVerticalTextPosition(SwingConstants.CENTER);
+        
+        return b;
+    }
 
     public void displayMessage(String newMessage){
     	messageList.add(newMessage); 
@@ -109,6 +142,19 @@ public class ChatPanel extends JPanel{
 
 	public List<JButton> buttons() {
 		return buttons;
+	}
+
+	public AbstractButton getButton(Model.User.Button b) {
+		switch(b) {
+		case ENTER:
+			return enterButton;
+		case COLOR:
+			return colorButton;
+		case LOGOUT:
+			return closeButton;
+		}
+		throw new IllegalArgumentException(
+			"Did not correspond to any instantiated button.");
 	}
     
 }
