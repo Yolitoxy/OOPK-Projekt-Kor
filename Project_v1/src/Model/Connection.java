@@ -1,5 +1,7 @@
-package Model;
+package model;
+import java.awt.Color;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
@@ -9,18 +11,25 @@ public class Connection {
 	private ServerSocket listen;
 	private List<ConnectionReader> readers;
 	private List<PropertyChangeListener> subscribers;
-	public boolean active;
+	private boolean active;
 	
+	private String name;
+	private Color c;
+	
+	private int readerIndex;
 	
 	public Connection() {
 		readers 	= new ArrayList<>();
 		subscribers = new ArrayList<>();
 		active		= false;
 		listen		= null;
+		name		= "Default";
+		c			= Color.black;
+		readerIndex = 0;
 	}
 	
 	
-	void connect(String IPAdress, int port) {
+	public void connect(String IPAdress, int port) {
 		try {
 			connect(new Socket(IPAdress, port));
 		} catch(IOException e) {
@@ -28,13 +37,19 @@ public class Connection {
 		}
 	}
 	
-	void host(int port) {
+	public void host(int port) {
 		try {
 			listen = new ServerSocket(port);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Thread t = new Thread(new ListenOnce(listen));
+		
+		ListenOnce l = new ListenOnce(listen);
+		for( PropertyChangeListener sub : subscribers ) {
+			l.support.addPropertyChangeListener(sub);
+		}
+		
+		Thread t = new Thread(l);
 		t.start();
 	}
 	
@@ -44,7 +59,13 @@ public class Connection {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Thread t = new Thread(new ListenAlways(listen));
+
+		ListenAlways l = new ListenAlways(listen);
+		for( PropertyChangeListener sub : subscribers ) {
+			l.support.addPropertyChangeListener(sub);
+		}
+		
+		Thread t = new Thread(l);
 		t.start();
 	}
 	
@@ -52,7 +73,9 @@ public class Connection {
 		
 		//	add an observable that listens to the incoming stream
 		//	and notifies controller when it receive incoming text
-		ConnectionReader reader = new ConnectionReader(s);
+
+		readerIndex++;
+		ConnectionReader reader = new ConnectionReader(readerIndex);
 		readers.add(reader);
 		
 		for(PropertyChangeListener sub: subscribers) {
@@ -61,18 +84,64 @@ public class Connection {
 				  .addPropertyChangeListener(sub);
 		}
 		
+		reader.bind(s);
 		Thread t = new Thread(reader);
 		t.start();
 	}
 	
-
+	public int getHostPort() {
+		if(listen == null) throw new IllegalStateException("Not hosting.");
+		return listen.getLocalPort();
+	}
+	
+	public InetAddress getHostAdress() {
+		if(listen == null) throw new IllegalStateException("Not hosting.");
+		return listen.getInetAddress();
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String n) {
+		name = n;
+	}
+	
+	public void setColor(Color c) {
+		this.c = c;
+	}
+	
+	public boolean isHosting() {
+		return !(listen == null);
+	}
+	
+	public boolean isActive() {
+		for (ConnectionReader r: readers) {
+			if (r.isActive()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public Message messageFromText(String s) {
+		return new Message(name, c, s);
+	}
+	
 	public void sendText(String s) {
+		Message m = new Message(name, c, s);
+		sendString(m.toXML());
+	}
+	
+	public void sendString(String raw) {
 		for(ConnectionReader r : readers) {
-			r.writeOut(s);
+			r.writeOut(raw);
 		}
 	}
 	
-	void subscribe(PropertyChangeListener sub) {
+	
+	
+	public void subscribe(PropertyChangeListener sub) {
 		subscribers.add(sub);
 	}
 	
@@ -80,8 +149,9 @@ public class Connection {
 		return readers;
 	}
 	
-	void close() {
+	public void close() {
 		System.out.println("---Closing connections.");
+		sendString(Message.logoutXml(name));
 		for(ConnectionReader r: readers) {
 			r.close();
 		}
@@ -97,13 +167,16 @@ public class Connection {
 	
 	private class ListenOnce implements Runnable {
 		private ServerSocket s;
+		private PropertyChangeSupport support;
 		
 		ListenOnce(ServerSocket s) {
 			this.s=s;
+			support = new PropertyChangeSupport(this);
 		}
 		
 		@Override
 		public void run() {
+			support.firePropertyChange("connect", null, ChatEvent.from(0).hosting(name));
 			try {
 				connect(s.accept());
 			} catch (IOException e) {
@@ -115,13 +188,16 @@ public class Connection {
 	
 	private class ListenAlways implements Runnable {
 		private ServerSocket s;
+		private PropertyChangeSupport support;
 		
 		ListenAlways(ServerSocket s) {
 			this.s = s;
+			support = new PropertyChangeSupport(this);
 		}
 		
 		@Override
 		public void run() {
+			support.firePropertyChange("connect", null, ChatEvent.from(0).hosting(name));
 			while(active) {
 				try {
 					connect(s.accept());
@@ -132,4 +208,10 @@ public class Connection {
 			}
 		}
 	}
+
+	public void logout() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

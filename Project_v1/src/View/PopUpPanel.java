@@ -1,7 +1,8 @@
-package View;
+package view;
 
 import javax.swing.*;
-import Model.User;
+
+import controller.User;
 
 import java.awt.Dimension;
 import java.awt.event.*;

@@ -7,7 +7,7 @@
 			<element name='disconnect'/>
 		 	<element name='text'>
 		 		<complexType mixed='true'>
-		 			<all>
+		 			<all minOccurs="0">
 		 				<element name='fetstil'/>
 		 				<element name='kursiv'/>
 					</all>

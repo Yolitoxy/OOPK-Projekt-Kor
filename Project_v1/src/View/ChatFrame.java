@@ -1,37 +1,32 @@
-package View;
+package view;
 
 import javax.swing.BoxLayout;
-import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import java.awt.*;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+
+import controller.User;
+
 import java.awt.event.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ChatFrame extends JFrame {
 	private PopUpPanel p;
 	private ChatPanel myChatPanel;
-	private List<ActionListener> subscribers;
-	
+	private JTabbedPane tabs;
 	
 	public ChatFrame()
 			throws IOException {
-		subscribers = new ArrayList<>();
 		
-        //setPreferredSize(new Dimension(900, 350));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
         
-        setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
-
-        myChatPanel = new ChatPanel();
-        add(myChatPanel);
-        
         p = new PopUpPanel();
-        add(p);
         
+        tabs = new JTabbedPane();
+        add(tabs);
+        tabs.addTab("Login",p);
         
         layoutInit();
 
@@ -51,20 +46,22 @@ public class ChatFrame extends JFrame {
 		p.getServerButton().addActionListener(sub);
 	}
 	
-	public ChatPanel spawnChatPanel() {
-		remove(myChatPanel);
-		myChatPanel = new ChatPanel();
-		myChatPanel.setVisible(true);
-		add(myChatPanel);
-		
+	public ChatPanel spawnChatPanel(model.Connection c) {
+		JPanel tab = new JPanel();
+		ChatPanel temp = new ChatPanel(c,tab);
+        tabs.addTab("", temp);
+        tabs.setTabComponentAt(tabs.indexOfComponent(temp), tab);
+        temp.getButton(User.Button.CLOSE).addActionListener(
+        	new ActionListener() {
+        		public void actionPerformed(ActionEvent e) {
+        			tabs.removeTabAt(tabs.indexOfComponent(temp));
+        		}
+        	}
+        );
+        
 		pack();
 		
-		for (ActionListener sub: subscribers) {
-			for (JButton b: myChatPanel.buttons()) {
-				b.addActionListener(sub);
-			}
-		}
-		return myChatPanel;
+		return temp;
 	}
 
 	public ChatPanel getChatPanel() {

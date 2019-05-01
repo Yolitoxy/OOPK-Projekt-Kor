@@ -1,28 +1,28 @@
-package Model;
+package model;
 import java.awt.Color;
 import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.net.Socket;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
+
 public class ConnectionReader implements Runnable {
+	private int id;
 	private String readText;
-	private String oldText;
-	BufferedReader in;
-	PrintWriter out;
-	Socket s;
-	PropertyChangeSupport support;
-	boolean active;
+	private ChatEvent oldEvent;
+	private BufferedReader in;
+	private PrintWriter out;
+	private Socket s;
+	private PropertyChangeSupport support;
+	private boolean active;
 	
-	ConnectionReader() {
+	ConnectionReader(int index) {
 		support = new PropertyChangeSupport(this);
 		active = false;
+		id = index;
 		System.out.println("ConnectionReader spawned with support "+support);
-	}
-	
-	ConnectionReader(Socket s) throws IOException {
-		this();
-		System.out.println("ConnectionReader spawned with socket "+s);
-		bind(s);
 	}
 
 	void bind(Socket s) throws IOException {
@@ -31,6 +31,9 @@ public class ConnectionReader implements Runnable {
 		in		= new BufferedReader(new InputStreamReader(
 				  s.getInputStream()));
 		active 	= true;
+		
+		support.firePropertyChange("connect", oldEvent, ChatEvent.from(id).connected(s.getInetAddress().toString()));
+		oldEvent = null;
 	}
 	
 	PropertyChangeSupport getSupport() {
@@ -42,21 +45,20 @@ public class ConnectionReader implements Runnable {
 		out.println(s);
 	}
 	
+	boolean isActive() {
+		return active;
+	}
+	
 	void close() {
 		out.close();
 		
 		try {
 			in.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} catch (IOException e) {}
 		try {
 			s.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} catch (IOException e) {}
+		
 	}
 	
 	@Override
@@ -69,25 +71,31 @@ public class ConnectionReader implements Runnable {
 				if(readText==null) {
 					System.out.println("ConnectionReader1: "+ readText);
 					active = false;
-					String newText = Message.readXML(Message.createXML(
-									"TERMINAL", Color.BLACK, "Connection ended.")).get();
-					support.firePropertyChange("message", oldText, newText);
-					oldText = newText;
+					ChatEvent newEvent = ChatEvent.from(id).disconnected(oldEvent.getSender());
+					support.firePropertyChange("disconnect", oldEvent, newEvent);
+					oldEvent = newEvent;
 				} else {
 					System.out.println("ConnectionReader2: "+readText);
-					String newText = Message.readXML(readText).orElseGet(() -> 
-							Message.createXML(
-									"TERMINAL", Color.BLACK, "Uninterpreted message."));
-					support.firePropertyChange("message", oldText, newText);
-					oldText = newText;
+					ChatEvent newEvent;
+					try {
+						newEvent = Message.readXML(id, readText);
+						support.firePropertyChange("message", oldEvent, newEvent);
+						oldEvent = newEvent;
+					} catch (SAXException|ParserConfigurationException e) {
+						// Silently swallow malformed messages
+						e.printStackTrace();
+					}
 				}
 			} catch(IOException e) {
 				active = false;
-				e.printStackTrace();
 			}
 			
 			
 		}
+		ChatEvent newEvent = ChatEvent.from(id).disconnected(oldEvent.getSender());
+		support.firePropertyChange("connect", oldEvent, newEvent);
+		oldEvent = newEvent;
+		
 		System.out.println("ConnectionReader ended.");
 	}
 }
