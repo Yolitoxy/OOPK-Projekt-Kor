@@ -13,6 +13,8 @@ import model.Connection;
 import model.HTMLSerializer;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import javax.swing.*;
 import java.util.List;
@@ -130,7 +132,9 @@ public class ChatPanel extends JPanel implements SessionView {
     		informationBar.setText("Not connected");
     	} else if( connection.isHosting() ) {
     		System.out.println("ChatPanel: hosting");
-        	informationBar.setText("Hosting at "+connection.getHostAdress()+" at port "+connection.getHostPort());
+        	try {
+				informationBar.setText("Hosting at "+InetAddress.getLocalHost().getHostAddress()+" at port "+connection.getHostPort());
+			} catch (UnknownHostException e) {}
     	} else if ( connection.isActive() ) {
     		System.out.println("ChatPanel: connected");
     		informationBar.setText("Connected");

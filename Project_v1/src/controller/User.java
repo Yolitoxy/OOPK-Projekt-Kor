@@ -97,16 +97,16 @@ implements PropertyChangeListener,
 		}
 		
 		else if(e.getSource()==view.getButton(Button.LOGOUT)) {
-        	closeConnection();
 			view.display(ChatEvent
 					.from(0)
 					.disconnected(connection.getName()));
+        	closeConnection();
 		}
 		else if(e.getSource() == view.getButton(Button.CLOSE)) {
-			closeConnection();
 			view.display(ChatEvent
 					.from(0)
 					.disconnected(connection.getName()));
+			closeConnection();
 		}
 	}
 }

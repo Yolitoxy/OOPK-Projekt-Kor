@@ -29,15 +29,17 @@ public class HTMLSerializer {
 		Color color = null;
 		try {
 			color = Message.fromHex(txt.getAttribute("color"));
-		} catch (IllegalArgumentException e) {
+		} catch (NullPointerException | IllegalArgumentException e) {
 			// It does not matter if the color is missing at this point.
 		}
 		
 		// serializeTextContent is the most substantial method called here.
 		String returnText = "";
-		for(int i = 0; i < txt.getChildNodes().getLength(); i++) {
-			returnText += serializeTextContent(txt.getChildNodes().item(i));
-		}
+		try{
+			for(int i = 0; i < txt.getChildNodes().getLength(); i++) {
+				returnText += serializeTextContent(txt.getChildNodes().item(i));
+			}
+		} catch (NullPointerException e) {}
 		ChatEvent evt = null;
 		if(dc != null) {
 			evt = ChatEvent.from(id).disconnected(sender);
@@ -49,7 +51,6 @@ public class HTMLSerializer {
 		if(messageBroken == true) {
 			evt.broken();
 		}
-		System.out.println("Message broken stats: "+messageBroken);
 		return evt;
 	}
 	
@@ -98,7 +99,7 @@ public class HTMLSerializer {
 		String myHtml = "";
 		switch(e.getType()) {
 		case CONNECT:
-			myHtml ="<div>"
+			myHtml = "<div>"
 					+	Message.escapeXml(e.getSender())+" has connected."
 					+"</div>";
 			break;
@@ -109,6 +110,8 @@ public class HTMLSerializer {
 			break;
 		case MESSAGE:
 			myHtml = e.getMessage().toHTML();
+			break;
+		case HOSTING:
 			break;
 		}
 		if(e.isBroken()) {

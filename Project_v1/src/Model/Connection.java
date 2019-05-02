@@ -181,7 +181,6 @@ public class Connection {
 				connect(s.accept());
 			} catch (IOException e) {
 				// swallow
-				e.printStackTrace();
 			}
 		}
 	}
@@ -203,15 +202,11 @@ public class Connection {
 					connect(s.accept());
 				} catch (IOException e) {
 					// swallow
-					e.printStackTrace();
 				}
 			}
 		}
 	}
 
-	public void logout() {
-		// TODO Auto-generated method stub
-		
-	}
+
 
 }

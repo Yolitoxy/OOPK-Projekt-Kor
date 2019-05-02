@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
+// The runnable class.
 public class Controller 
 	extends WindowAdapter 
 	implements ActionListener {
